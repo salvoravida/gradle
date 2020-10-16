@@ -8,7 +8,7 @@ object DistributedTest_DistributedTest : GitVcsRoot({
     url = "https://github.com/gradle/gradle.git"
     branch = "refs/heads/blindpirate/distributed-test"
     authMethod = password {
-        userName = "blindpirate"
-        password = "credentialsJSON:9b51dc85-6a07-4208-9753-e02ed0cd6237"
+        userName = "bot-teamcity"
+        password = "%github.bot-teamcity.token%"
     }
 })

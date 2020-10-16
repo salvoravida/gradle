@@ -210,6 +210,13 @@ fun configureTests() {
 
         val testName = name
 
+        if (!BuildEnvironment.isIntelliJIDEA) {
+            // JUnit 5 Vintage engine can't recognize Spock @Unroll test method correctly
+            // So if running an @Unroll method in IDEA with include pattern "SomeClass.methodName"
+            // The result will be incorrect. In this case we fallback to JUnit
+            useJUnitPlatform()
+        }
+
         if (BuildEnvironment.isCiServer) {
             retry {
                 maxRetries.convention(1)

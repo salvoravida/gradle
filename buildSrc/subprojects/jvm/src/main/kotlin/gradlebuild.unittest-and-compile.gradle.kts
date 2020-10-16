@@ -200,6 +200,7 @@ fun configureTests() {
     }
 
     tasks.withType<Test>().configureEach {
+        outputs.cacheIf { false }
         filterEnvironmentVariables()
 
         maxParallelForks = project.maxParallelForks
@@ -229,6 +230,7 @@ fun configureTests() {
                     OperatingSystem.current().isWindows -> requirements.set(listOf("os=windows"))
                     OperatingSystem.current().isMacOsX -> requirements.set(listOf("os=macos"))
                 }
+                requirements.set(listOf("gbt-dogfooding"))
             }
         }
     }

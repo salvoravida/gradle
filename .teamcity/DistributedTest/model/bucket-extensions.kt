@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package Gradle_Check.model
+package DistributedTest.model
 
 import java.util.LinkedList
 import kotlin.math.min

@@ -1,7 +1,6 @@
 package model
 
-import Gradle_Check.model.GradleSubprojectProvider
-import Gradle_Check.model.PerformanceTestCoverage
+import DistributedTest.model.PerformanceTestCoverage
 import common.BuildCache
 import common.JvmCategory
 import common.JvmVendor
@@ -10,7 +9,6 @@ import common.Os
 import common.builtInRemoteBuildCacheNode
 import configurations.BuildDistributions
 import configurations.CompileAll
-import configurations.FunctionalTest
 import configurations.Gradleception
 import configurations.SanityCheck
 import configurations.SmokeTests
@@ -31,8 +29,8 @@ enum class StageNames(override val stageName: String, override val description: 
 }
 
 data class CIBuildModel(
-    val projectPrefix: String = "Gradle_Check_",
-    val rootProjectName: String = "Check",
+    val projectPrefix: String = "DistributedGradle_Check_",
+    val rootProjectName: String = "DistributedCheck",
     val publishStatusToGitHub: Boolean = true,
     val parentBuildCache: BuildCache = builtInRemoteBuildCacheNode,
     val childBuildCache: BuildCache = builtInRemoteBuildCacheNode,
@@ -42,7 +40,7 @@ data class CIBuildModel(
             specificBuilds = listOf(
                 SpecificBuild.CompileAll, SpecificBuild.SanityCheck),
             functionalTests = listOf(
-                TestCoverage(1, TestType.quick, Os.LINUX, JvmCategory.MAX_VERSION)), omitsSlowProjects = true),
+                TestCoverage(1, TestType.quick, Os.LINUX, JvmCategory.MAX_VERSION, testDistribution = true)), omitsSlowProjects = true),
         Stage(StageNames.QUICK_FEEDBACK,
             functionalTests = listOf(
                 TestCoverage(2, TestType.quick, Os.WINDOWS, JvmCategory.MIN_VERSION)),
@@ -163,49 +161,8 @@ data class CIBuildModel(
                 PerformanceTestCoverage(13, PerformanceTestType.slow, Os.LINUX, numberOfBuckets = 30, withoutDependencies = true)
             )
         )
-    ),
-    val subprojects: GradleSubprojectProvider
+    )
 )
-
-interface BuildTypeBucket {
-    fun createFunctionalTestsFor(model: CIBuildModel, stage: Stage, testCoverage: TestCoverage, bucketIndex: Int): FunctionalTest
-
-    fun getUuid(model: CIBuildModel, testCoverage: TestCoverage, bucketIndex: Int): String = testCoverage.asConfigurationId(model, "bucket${bucketIndex + 1}")
-
-    fun getName(testCoverage: TestCoverage): String = throw UnsupportedOperationException()
-
-    fun getDescription(testCoverage: TestCoverage): String = throw UnsupportedOperationException()
-}
-
-data class GradleSubproject(val name: String, val unitTests: Boolean = true, val functionalTests: Boolean = true, val crossVersionTests: Boolean = false, val containsSlowTests: Boolean = false) : BuildTypeBucket {
-    override fun createFunctionalTestsFor(model: CIBuildModel, stage: Stage, testCoverage: TestCoverage, bucketIndex: Int): FunctionalTest {
-        val uuid = if (containsSlowTests) testCoverage.asConfigurationId(model, name.kebabCaseToCamelCase()) else getUuid(model, testCoverage, bucketIndex)
-        return FunctionalTest(model,
-            uuid,
-            getName(testCoverage),
-            getDescription(testCoverage),
-
-            testCoverage,
-            stage,
-            listOf(name)
-        )
-    }
-
-    // Build Template or Configuration "Gradle_Check_Platform_4_platform-play" is invalid: contains unsupported character '-'. ID should start with a latin letter
-    // and contain only latin letters, digits and underscores (at most 225 characters).
-    private fun String.kebabCaseToCamelCase() = split('-')
-        .map { it.capitalize() }
-        .joinToString("")
-        .decapitalize()
-
-    override fun getName(testCoverage: TestCoverage): String = "${testCoverage.asName()} ($name)"
-
-    override fun getDescription(testCoverage: TestCoverage) = "${testCoverage.asName()} for $name"
-
-    fun hasTestsOf(testType: TestType) = (unitTests && testType.unitTests) || (functionalTests && testType.functionalTests) || (crossVersionTests && testType.crossVersionTests)
-
-    fun asDirectoryName() = name.replace(Regex("([A-Z])")) { "-" + it.groups[1]!!.value.toLowerCase() }
-}
 
 interface StageName {
     val stageName: String
@@ -256,7 +213,7 @@ data class TestCoverage(val uuid: Int, val testType: TestType, val os: Os, val t
 
 enum class TestType(val unitTests: Boolean = true, val functionalTests: Boolean = true, val crossVersionTests: Boolean = false, val timeout: Int = 180) {
     // Include cross version tests, these take care of selecting a very small set of versions to cover when run as part of this stage, including the current version
-    quick(true, true, true, 60),
+    quick(true, true, true, 180),
 
     // Include cross version tests, these take care of selecting a very small set of versions to cover when run as part of this stage, including the current version
     platform(true, true, true),

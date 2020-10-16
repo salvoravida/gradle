@@ -1,21 +1,18 @@
 package configurations
 
-import Gradle_Check.configurations.allBranchesFilter
 import common.Os
 import common.applyDefaultSettings
 import common.buildToolGradleParameters
 import common.checkCleanM2
 import common.compileAllDependency
 import common.gradleWrapper
+import common.isLinuxBuild
 import jetbrains.buildServer.configs.kotlin.v2019_2.BuildFeatures
 import jetbrains.buildServer.configs.kotlin.v2019_2.BuildStep
 import jetbrains.buildServer.configs.kotlin.v2019_2.BuildSteps
 import jetbrains.buildServer.configs.kotlin.v2019_2.BuildType
 import jetbrains.buildServer.configs.kotlin.v2019_2.FailureAction
 import jetbrains.buildServer.configs.kotlin.v2019_2.ProjectFeatures
-import jetbrains.buildServer.configs.kotlin.v2019_2.buildFeatures.PullRequests
-import jetbrains.buildServer.configs.kotlin.v2019_2.buildFeatures.commitStatusPublisher
-import jetbrains.buildServer.configs.kotlin.v2019_2.buildFeatures.pullRequests
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.script
 import model.CIBuildModel
 import model.StageNames
@@ -41,34 +38,12 @@ val m2CleanScriptWindows = """
 """.trimIndent()
 
 fun BuildFeatures.publishBuildStatusToGithub(model: CIBuildModel) {
-    if (model.publishStatusToGitHub) {
-        publishBuildStatusToGithub()
-    }
 }
 
 fun BuildFeatures.triggeredOnPullRequests() {
-    pullRequests {
-        vcsRootExtId = "Gradle_Branches_GradlePersonalBranches"
-        provider = github {
-            authType = token {
-                token = "%github.bot-gradle.token%"
-            }
-            filterAuthorRole = PullRequests.GitHubRoleFilter.MEMBER
-            filterTargetBranch = allBranchesFilter
-        }
-    }
 }
 
 fun BuildFeatures.publishBuildStatusToGithub() {
-    commitStatusPublisher {
-        vcsRootExtId = "Gradle_Branches_GradlePersonalBranches"
-        publisher = github {
-            githubUrl = "https://api.github.com"
-            authType = personalToken {
-                token = "%github.bot-gradle.token%"
-            }
-        }
-    }
 }
 
 fun ProjectFeatures.buildReportTab(title: String, startPage: String) {
@@ -91,7 +66,6 @@ fun BaseGradleBuildType.gradleRunnerStep(model: CIBuildModel, gradleTasks: Strin
                 buildToolGradleParameters(daemon) +
                     this@gradleRunnerStep.buildCache.gradleParameters(os) +
                     listOf(extraParameters) +
-                    "-PteamCityToken=%teamcity.user.bot-gradle.token%" +
                     "-PteamCityBuildId=%teamcity.build.id%" +
                     buildScanTags.map { buildScanTag(it) }
                 ).joinToString(separator = " ")
@@ -209,7 +183,7 @@ fun applyTestDefaults(
 fun buildScanTag(tag: String) = """"-Dscan.tag.$tag""""
 fun buildScanCustomValue(key: String, value: String) = """"-Dscan.value.$key=$value""""
 fun applyDefaultDependencies(model: CIBuildModel, buildType: BuildType, notQuick: Boolean = false) {
-    if (notQuick) {
+    if (notQuick && buildType.isLinuxBuild()) {
         // wait for quick feedback phase to finish successfully
         buildType.dependencies {
             dependency(stageTriggerId(model, StageNames.QUICK_FEEDBACK_LINUX_ONLY)) {

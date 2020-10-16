@@ -1,7 +1,6 @@
 package projects
 
-import Gradle_Check.model.FunctionalTestBucketProvider
-import Gradle_Check.model.StatisticsBasedPerformanceTestBucketProvider
+import DistributedTest.vcsRoots.DistributedTest_DistributedTest
 import common.failedTestArtifactDestination
 import configurations.StagePasses
 import jetbrains.buildServer.configs.kotlin.v2019_2.AbsoluteId
@@ -10,24 +9,23 @@ import jetbrains.buildServer.configs.kotlin.v2019_2.projectFeatures.VersionedSet
 import jetbrains.buildServer.configs.kotlin.v2019_2.projectFeatures.versionedSettings
 import model.CIBuildModel
 import model.Stage
-import java.io.File
 
-class RootProject(model: CIBuildModel, functionalTestBucketProvider: FunctionalTestBucketProvider) : Project({
+class RootProject(model: CIBuildModel) : Project({
     uuid = model.projectPrefix.removeSuffix("_")
     id = AbsoluteId(uuid)
-    parentId = AbsoluteId("Gradle")
+    parentId("_Root")
     name = model.rootProjectName
-    val performanceTestBucketProvider = StatisticsBasedPerformanceTestBucketProvider(model, File("performance-test-durations.json"), File("performance-tests-ci.json"))
+    vcsRoot(DistributedTest_DistributedTest)
 
     features {
         versionedSettings {
-            id = "PROJECT_EXT_3"
+            id = "PROJECT_EXT_39"
             mode = VersionedSettings.Mode.ENABLED
-            buildSettingsMode = VersionedSettings.BuildSettingsMode.PREFER_SETTINGS_FROM_VCS
-            rootExtId = "Gradle_Branches_VersionedSettings"
-            showChanges = true
+            buildSettingsMode = VersionedSettings.BuildSettingsMode.USE_CURRENT_SETTINGS
+            rootExtId = "${DistributedTest_DistributedTest.id}"
+            showChanges = false
             settingsFormat = VersionedSettings.Format.KOTLIN
-            param("credentialsStorageType", "credentialsJSON")
+            storeSecureParamsOutsideOfVcs = true
         }
     }
 
@@ -37,7 +35,7 @@ class RootProject(model: CIBuildModel, functionalTestBucketProvider: FunctionalT
 
     var prevStage: Stage? = null
     model.stages.forEach { stage ->
-        val stageProject = StageProject(model, functionalTestBucketProvider, performanceTestBucketProvider, stage, uuid)
+        val stageProject = StageProject(model, stage, uuid)
         val stagePasses = StagePasses(model, stage, prevStage, stageProject)
         buildType(stagePasses)
         subProject(stageProject)

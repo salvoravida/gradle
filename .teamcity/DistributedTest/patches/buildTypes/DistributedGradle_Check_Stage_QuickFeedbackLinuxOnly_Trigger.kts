@@ -13,5 +13,8 @@ changeBuildType(uuid("DistributedGradle_Check_Stage_QuickFeedbackLinuxOnly_Trigg
         add {
             param("artifactoryPassword", "bot-enterprise-releases")
         }
+        add {
+            password("artifactoryUsername", "credentialsJSON:ad44a02d-832d-4104-846c-03d87c8b8f56")
+        }
     }
 }

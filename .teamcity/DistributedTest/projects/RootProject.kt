@@ -30,7 +30,7 @@ class RootProject(model: CIBuildModel) : Project({
     }
 
     params {
-        param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%ge.gradle.org.access.key%")
+        param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%e.grdev.net.access.key%")
         param("env.ARTIFACTORY_USERNAME", "%artifactoryUsername%")
         param("env.ARTIFACTORY_PASSWORD", "%artifactoryPassword%")
     }

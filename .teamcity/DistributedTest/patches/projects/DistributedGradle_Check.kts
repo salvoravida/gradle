@@ -18,6 +18,12 @@ changeProject(uuid("DistributedGradle_Check")) {
             param("env.ARTIFACTORY_PASSWORD", "bot-enterprise-releases")
         }
         expect {
+            param("env.ARTIFACTORY_USERNAME", "%artifactoryUsername%")
+        }
+        update {
+            password("env.ARTIFACTORY_USERNAME", "credentialsJSON:ad44a02d-832d-4104-846c-03d87c8b8f56")
+        }
+        expect {
             param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%e.grdev.net.access.key%")
         }
         update {

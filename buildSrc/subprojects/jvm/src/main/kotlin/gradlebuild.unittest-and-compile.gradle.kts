@@ -203,7 +203,7 @@ fun configureTests() {
         outputs.cacheIf { false }
         filterEnvironmentVariables()
 
-        maxParallelForks = project.maxParallelForks
+        maxParallelForks = 20 // project.maxParallelForks
 
         configureJvmForTest()
         addOsAsInputs()
@@ -229,8 +229,8 @@ fun configureTests() {
 
         if (project.testDistributionEnabled()) {
             distribution {
-                maxLocalExecutors.set(0)
-                maxRemoteExecutors.set(if ("test" == testName) 5 else 20)
+//                maxLocalExecutors.set(0)
+//                maxRemoteExecutors.set(if ("test" == testName) 5 else 20)
                 enabled.set(true)
                 when {
                     OperatingSystem.current().isLinux -> requirements.set(listOf("os=linux"))

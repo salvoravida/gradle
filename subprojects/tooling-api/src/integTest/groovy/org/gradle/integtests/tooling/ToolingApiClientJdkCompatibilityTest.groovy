@@ -196,7 +196,7 @@ public class ToolingApiCompatibilityBuildAction implements BuildAction<String> {
         Assume.assumeTrue(tapiClientCompilerJdk && gradleDaemonJdk)
 
         when:
-        succeeds("runTask",
+        succeeds("runTask", "-s",
                 "-PclientJdk=" + clientJdkVersion.majorVersion,
                 "-PtargetJdk=" + gradleDaemonJdk.javaHome.absolutePath,
                 "-PgradleVersion=" + gradleVersion)
@@ -234,7 +234,7 @@ public class ToolingApiCompatibilityBuildAction implements BuildAction<String> {
         }
 
         when:
-        succeeds("buildAction",
+        succeeds("buildAction", "-s",
                 "-PclientJdk=" + clientJdkVersion.majorVersion,
                 "-PtargetJdk=" + gradleDaemonJdk.javaHome.absolutePath,
                 "-PgradleVersion=" + gradleVersion)

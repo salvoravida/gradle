@@ -155,6 +155,7 @@ public class ToolingApiCompatibilityClient {
             String result = connection.action(new ToolingApiCompatibilityBuildAction())
                 .setStandardOutput(out)
                 .setStandardError(err)
+                .withArguments("-s", "-i")
                 .setJavaHome(javaHome)
                 .run();
             assert result.contains("Build action result");

@@ -30,6 +30,7 @@ import org.gradle.configurationcache.serialization.readList
 import org.gradle.configurationcache.serialization.readNonNull
 import org.gradle.configurationcache.serialization.writeCollection
 
+
 class TransformedProjectArtifactSetCodec : Codec<TransformedProjectArtifactSet> {
     override suspend fun WriteContext.encode(value: TransformedProjectArtifactSet) {
         encodePreservingSharedIdentityOf(value) {

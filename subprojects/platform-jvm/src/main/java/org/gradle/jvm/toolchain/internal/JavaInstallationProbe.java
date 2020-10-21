@@ -44,6 +44,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumMap;
 
+// XXX: Remove and replace with JvmMetdataDetector
+// JvmMetdataDetector will be able to reuse most of the code in here as-is
 public class JavaInstallationProbe {
     public static final String UNKNOWN = "unknown";
 

@@ -19,6 +19,7 @@ package org.gradle.internal.jvm;
 import javax.annotation.Nullable;
 import java.io.File;
 
+// XXX: merge with JavaInstallation
 public interface JavaInfo {
     /**
      * @return the executable

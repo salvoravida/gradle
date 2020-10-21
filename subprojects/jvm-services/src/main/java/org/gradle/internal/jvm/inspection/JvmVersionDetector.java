@@ -24,6 +24,7 @@ import org.gradle.internal.scan.UsedByScanPlugin;
  * Probes a JVM installation to determine the Java version it provides.
  */
 @UsedByScanPlugin("test-distribution")
+// TODO: deprecate and/or delegate to JvmMetdataDetector
 public interface JvmVersionDetector {
     /**
      * Probes the Java version for the given JVM installation.

@@ -31,6 +31,7 @@ import java.util.Optional;
  * @since 6.2
  */
 @Incubating
+// XXX: deprecate this
 public interface JavaInstallation {
     /**
      * Returns the Java version that this installation provides

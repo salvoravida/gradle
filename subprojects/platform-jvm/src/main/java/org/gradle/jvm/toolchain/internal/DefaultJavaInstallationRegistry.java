@@ -40,6 +40,7 @@ import java.io.FileNotFoundException;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
+// XXX: Deprecate this
 @ServiceScope(Scopes.Build.class)
 public class DefaultJavaInstallationRegistry implements JavaInstallationRegistry {
     private final JavaInstallationProbe installationProbe;

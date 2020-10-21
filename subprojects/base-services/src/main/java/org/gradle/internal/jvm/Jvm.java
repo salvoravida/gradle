@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+// XXX: consider migrating this to new Metadata
 public class Jvm implements JavaInfo {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Jvm.class);

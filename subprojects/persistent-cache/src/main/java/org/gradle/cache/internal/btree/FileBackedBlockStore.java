@@ -152,7 +152,7 @@ public class FileBackedBlockStore implements BlockStore {
         private static final int TAIL_SIZE = INT_SIZE;
 
         private BlockPointer pos;
-        private int payloadSize;
+        private long payloadSize;
 
         private BlockImpl(BlockPayload payload, BlockPointer pos) {
             this(payload);
@@ -185,7 +185,7 @@ public class FileBackedBlockStore implements BlockStore {
         }
 
         @Override
-        public int getSize() {
+        public long getSize() {
             if (payloadSize < 0) {
                 payloadSize = getPayload().getSize();
             }
@@ -193,8 +193,8 @@ public class FileBackedBlockStore implements BlockStore {
         }
 
         @Override
-        public void setSize(int size) {
-            int newPayloadSize = size - HEADER_SIZE - TAIL_SIZE;
+        public void setSize(long size) {
+            long newPayloadSize = size - HEADER_SIZE - TAIL_SIZE;
             assert newPayloadSize >= payloadSize;
             payloadSize = newPayloadSize;
         }
@@ -208,7 +208,7 @@ public class FileBackedBlockStore implements BlockStore {
 
             // Write header
             outputStream.writeByte(payload.getType());
-            outputStream.writeInt(payloadSize);
+            outputStream.writeLong(payloadSize);
             long finalSize = pos + HEADER_SIZE + TAIL_SIZE + payloadSize;
 
             // Write body
@@ -216,10 +216,7 @@ public class FileBackedBlockStore implements BlockStore {
 
             // Write count
             long bytesWritten = output.getBytesWritten();
-            if (bytesWritten > Integer.MAX_VALUE) {
-                throw new IllegalArgumentException("Block payload exceeds maximum size");
-            }
-            outputStream.writeInt((int) bytesWritten);
+            outputStream.writeLong(bytesWritten);
             output.done();
 
             // Pad
@@ -247,7 +244,7 @@ public class FileBackedBlockStore implements BlockStore {
             }
 
             // Read body
-            payloadSize = inputStream.readInt();
+            payloadSize = inputStream.readLong();
             if (pos + HEADER_SIZE + TAIL_SIZE + payloadSize > currentFileSize) {
                 throw blockCorruptedException();
             }
@@ -255,7 +252,7 @@ public class FileBackedBlockStore implements BlockStore {
 
             // Read and verify count
             long actualCount = input.getBytesRead();
-            long count = inputStream.readInt();
+            long count = inputStream.readLong();
             if (actualCount != count) {
                 throw blockCorruptedException();
             }

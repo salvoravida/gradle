@@ -108,11 +108,11 @@ public class FreeListBlockStore implements BlockStore {
         verify(block, Integer.MAX_VALUE);
     }
 
-    private void verify(FreeListBlock block, int maxValue) {
+    private void verify(FreeListBlock block, long maxValue) {
         if (block.largestInNextBlock > maxValue) {
             throw new RuntimeException("corrupt free list");
         }
-        int current = 0;
+        long current = 0;
         for (FreeListEntry entry : block.entries) {
             if (entry.size > maxValue) {
                 throw new RuntimeException("corrupt free list");
@@ -132,7 +132,7 @@ public class FreeListBlockStore implements BlockStore {
 
     public class FreeListBlock extends BlockPayload {
         private List<FreeListEntry> entries = new ArrayList<FreeListEntry>();
-        private int largestInNextBlock;
+        private long largestInNextBlock;
         private BlockPointer nextBlock = BlockPointer.start();
         // Transient fields
         private FreeListBlock prev;
@@ -164,15 +164,15 @@ public class FreeListBlockStore implements BlockStore {
         @Override
         protected void write(DataOutputStream outputStream) throws Exception {
             outputStream.writeLong(nextBlock.getPos());
-            outputStream.writeInt(largestInNextBlock);
-            outputStream.writeInt(entries.size());
+            outputStream.writeLong(largestInNextBlock);
+            outputStream.writeLong(entries.size());
             for (FreeListEntry entry : entries) {
                 outputStream.writeLong(entry.pos.getPos());
-                outputStream.writeInt(entry.size);
+                outputStream.writeLong(entry.size);
             }
         }
 
-        public void add(BlockPointer pos, int size) {
+        public void add(BlockPointer pos, long size) {
             assert !pos.isNull() && size >= 0;
             if (size == 0) {
                 return;
@@ -223,7 +223,7 @@ public class FreeListBlockStore implements BlockStore {
                 return;
             }
 
-            int requiredSize = block.getSize();
+            long requiredSize = block.getSize();
 
             if (entries.isEmpty() || requiredSize <= largestInNextBlock) {
                 if (nextBlock.isNull()) {
@@ -262,9 +262,9 @@ public class FreeListBlockStore implements BlockStore {
 
     private static class FreeListEntry implements Comparable<FreeListEntry> {
         final BlockPointer pos;
-        final int size;
+        final long size;
 
-        private FreeListEntry(BlockPointer pos, int size) {
+        private FreeListEntry(BlockPointer pos, long size) {
             this.pos = pos;
             this.size = size;
         }
